@@ -1,0 +1,22 @@
+version: '3'
+services:
+  kii:
+   build:
+    context: .
+    dockerfile: Dockerfile
+   container_name: kii-service
+   ports:
+      - "1317:1317"
+      - "26656:26656"
+      - "26657:26657"
+      - "26658:26658"
+      - "6060:6060"
+      - "8080:8080"
+      - "9090:9090"
+      - "9091:9091"
+   volumes:
+      - .:/app
+   mem_reservation: 11776m  # config max mem_reservation
+   mem_limit: 11776m         # config max mem_limit
+   cpus: 4    # config max cpu to use
+   tty: true 
