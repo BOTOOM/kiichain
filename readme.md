@@ -1,50 +1,79 @@
-# KII Chain
-**KII Chain** is a blockchain built using Cosmos SDK and Tendermint and created with [Ignite CLI](https://ignite.com/cli).
+# Kiichain with custom module
 
-## Prerequisites
-```
-Node 18+
+In this project kiichain has been used for the creation of the blockchain. If you want to know more about kiichain, please consult [kiichain](https://github.com/KiiBlockchain/kii).
 
-Go 1.19
+The project contains the addition of a custom module that allows CRUD operations on a list of `post`.
 
-bison (on the OS level)
+You can run the project on your local or using docker (for personal preference for the execution I prefer to use docker).
 
-build-essential (on the OS level)
+## RUN
 
-jq (on the OS level)
+### LOCAL
 
-Ignite CLI v0.27.1
-(curl https://get.ignite.com/cli@v0.27.1! | bash)
-```
+You can run it on your premises but you must take into account the prerequisites.
 
-## Testnet Validator Setup (Written Instructions)
-Read more [here](./install.md)
+- go
+- [ignite cli](https://docs.ignite.com/v0.27/welcome/install)
 
-## Bring up Testnet Node (not a validator yet) - Step 1 DEMO
-```
-Note: it is recommended to have a minimum of 100GB of root storage.  Preferred amount is 500GB-1TB of storage.  As the blockchain grows, node operators are responsible for determining the need of expanding their server storage to prevent insufficient storage space.
+Run to run the project locally:
 
-2nd Note: before you start, it is recommended that as soon as you ssh into your server, start a separate session using the "screen" command.  More info on the screen command here: https://linuxize.com/post/how-to-use-linux-screen/
+```bash
+ignite chain serve
 ```
 
-[![IMAGE ALT TEXT](http://img.youtube.com/vi/k4cFlFxU6nE/0.jpg)](http://www.youtube.com/watch?v=k4cFlFxU6nE "KII Chain Testnet Node Setup - Step 1")
+### Docker
 
-## Convert Node into Validator - Step 2 DEMO
-```
-Note: After step 1 has been completed, ensure the node has caught up to the current height of the blockchain.  You will notice that the logs for the node is a lot slower.  You can also check the current block height at: https://app.kiiglobal.io/.
+I recommend the use of docker since it allows a controlled environment in which you can limit the use of resources for the container, you can have a totally isolated environment if required without having any conflict with any dependencies or installed libraries.
 
-2nd Note: Ensure you have enough KII coins in the validator wallet that you have created in Step 1.  It is recommended to NOT use your personal KII wallet.  Transfer KII coins from your personal wallet to your newly created Validator wallet from Step 1.
-```
-[![IMAGE ALT TEXT](http://img.youtube.com/vi/Vt0u9LdYz6I/0.jpg)](http://www.youtube.com/watch?v=Vt0u9LdYz6I "Convert Node into Validator - Step 2")
+Note that you must have previously installed `docker`.
 
-## (OPTIONAL but HIGHLY recommended) Making your Validator Secured and Visible - Step 3 DEMO
-```
-Note: Once your validator is up and running, we need it to be visible and secured on https://app.kiiglobal.io/kii/staking.  For this, it is required for the validator to have SSL enabled.
+1. Compile docker image
 
-Requirements:
-1) Register a domain name.  For example: myvalidator.com
-2) get certificates for your domain OR generate self-signed certificates (shown in the video)
-3) install NGINX on the node server
-4) open inbound connection on port 443 and 26658 in your firewall (if you're on a cloud provider, you can normally do this through network security group)
+    ```bash
+    # using the common builder
+    docker build -t kii . 
+    # using builx
+    docker buildx build -t kii . 
+    ```
+2. Run your container with controlled resources: I recommend this because running the blockchain uses all available CPU and RAM resources. By running it in a container we can allocate a certain amount of resources.
+
+    ```bash
+    docker run -it \
+        --name kii \
+        -p 1317:1317 \
+        -p 26656:26656 \
+        -p 26657:26657 \
+        -p 26658:26658 \
+        -p 6060:6060 \
+        -p 8080:8080 \
+        -p 9090:9090 \
+        -p 9091:9091 \
+        --memory-reservation 11776m \
+        --memory 11776m \
+        --cpus 4 \
+        --workdir /app \
+        --rm kii
+    ```
+
+3. Execute the project inside the container: when executing the above command by default your terminal is connected to the container terminal so you can execute the following command:
+
+    ```bash
+    ignite chain serve
+    ```
+
+## Interacting with the project
+
+Regardless of how you run the project you can access the following links:
+
+`swagger`: http://0.0.0.0:1317/  
+
+http://0.0.0.0:26657/
+
+if you want to interact with the blog module you can create a blog using the following command
+
+```bash
+kiichaind tx kiichain create-post 'Hello, World!' 'This is a blog post' -
+-from exampleWalletKiiBotom
 ```
-[![IMAGE ALT TEXT](http://img.youtube.com/vi/dsgySMaGJAw/0.jpg)](http://www.youtube.com/watch?v=dsgySMaGJAw "Enable SSL on your node - Step 3")
+
+if you want to read the saved posts you can do it through the console or with swagger.
